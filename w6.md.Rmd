@@ -1,0 +1,79 @@
+---
+title: "W6: practicing functions'"
+author: "Emilia"
+date: "25/10/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Task 1
+Define a defensive function that calculates the Gross Domestic Product of a nation from the data available in the gapminder dataset. Using that function, calculate the GDP of Denmark in the following years: 1967, 1977, 1987, 1997, 2007, and 2017.
+
+Load the needed libraries
+```{r libraries}
+library(tidyverse)
+library(gapminder)
+```
+Defining a function that calculates the GDP of a country per year. 
+
+```{r calculate gdp}
+#define the function and add 'dat' to make sure it doesn't affect the raw dataset. Set default arguments for year and country, meaning they will return as NULL unless otherwise specified. 
+calcGDP <- function(dat, year=NULL, country=NULL) { 
+  #use if-arguments to subset the data by year, then by country. Remove any possible NULL values in the output with the !is.null() argument. Do so for both year and country. 
+  if(!is.null(year)) {  
+    dat <- dat[dat$year %in% year, ] 
+    # use %in% to give mulitiple years or countries that argument. 
+  }
+  if (!is.null(country)) {
+    dat <- dat[dat$country %in% country,]
+  }
+  
+  #multiply population with gdpPercap to calculate the GDP of a country
+  gdp <- dat$pop * dat$gdpPercap 
+
+  #define a new column using the cbind function
+  GDP_info <- cbind(dat, gdp=gdp) 
+  return(GDP_info) #return the results
+}
+```
+The above code an be used to extract the GDP for any country or any year within the gapminder data set. To calculate the GDP of Denmark in the years, 1967, 1977, 1987, 1997, 2007, and 2017, the following code can be used: 
+
+```{r Denmark GDP}
+calcGDP(gapminder, c(1967, 1977, 1987, 1997, 2007, 2017), country="Denmark") #use the before-defined function, insert the dataset, and specify what variables should be shown. In this case I want the data from the years 1967 to 2017 in Denmark to be shown. 
+```
+The output only shows data up to 2007. That is probably because 2017 wasn't included in the data set. 
+
+## Task 2
+Write a script that loops over each country in the gapminder dataset, tests whether the country starts with a ‘B’ , and print out whether the life expectancy is smaller than 50, between 50 and 70, or greater than 70.
+
+My code is as follows, but there is some obscure mistace in there, which makes it impossible to Knit, if it's embedded within a code chunk:
+
+    # Start by making a new data frame to fill with data from the loop
+B_countries_dt <- as.data.frame(gapminder) 
+
+    #to get the countries staring with B, use the grep function. Use the unique function to make each country only appear once.
+B_countries <- grep("^B", unique(gapminder$country), value=TRUE)
+B_countries
+
+
+    #make a loop over the countries starting with B, and make a temporary variable to store the subset, in which the average life expectancy is calculated. 
+for (iCountry in B_countries) {
+    tmp <- mean(gapminder[gapminder$country == iCountry, "lifeExp"])
+    
+    #make the loop print out the desired ourput, if it finds the average life expectancy below 50, between 50 and 70 and above 70. 
+    
+    if(tmp < 50){
+        cat("Average Life Expectancy in", iCountry, "is less than", lowerThreshold, "\n")
+    }
+    else if(tmp > 50 && tmp < 70){
+        cat("Average Life Expectancy in", iCountry, "is between", lowerThreshold, "and", upperThreshold, "\n")
+    }
+    else{
+        cat("Average Life Expectancy in", iCountry, "is greater than", upperThreshold, "\n")
+    }
+    rm(tmp)
+}
+
